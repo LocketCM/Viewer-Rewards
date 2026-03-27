@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0e14; font-family:'Share Tech Mono',monospace; color:#e8e4d0; padding: 16px; }
+
+  :root {
+    --gold: #c8a84b;
+    --gold-dim: rgba(200,168,75,0.3);
+    --gold-faint: rgba(200,168,75,0.1);
+    --panel: #13141a;
+    --border: #1e2130;
+  }
+
+  .header { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .header-text { flex:1; }
+  .title { font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; letter-spacing:0.1em; color:var(--gold); line-height:1; text-transform:uppercase; }
+  .subtitle { font-size:10px; letter-spacing:0.14em; color:rgba(200,168,75,0.45); margin-top:3px; }
+  .divider-line { height:1px; background:linear-gradient(90deg, transparent, var(--gold-dim) 20%, var(--gold-dim) 80%, transparent); margin:14px 0; }
+  .intro { font-size:11px; line-height:1.8; letter-spacing:0.05em; color:rgba(232,228,208,0.55); margin-bottom:16px; }
+  .intro span { color:var(--gold); }
+
+  .effects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-bottom:20px; }
+  .effect-card { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 10px; cursor:pointer; transition:border-color 0.2s,background 0.2s; display:flex; flex-direction:column; gap:6px; position:relative; overflow:hidden; }
+  .effect-card:hover { border-color:rgba(200,168,75,0.45); background:#181a24; }
+  .effect-card.selected { border-color:var(--gold); background:rgba(200,168,75,0.07); }
+  .effect-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--gold); opacity:0; transition:opacity 0.2s; }
+  .effect-card.selected::before { opacity:1; }
+  .card-icon { font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:var(--gold); line-height:1; }
+  .card-name { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.08em; color:#e8e4d0; text-transform:uppercase; line-height:1; }
+  .card-cost { display:flex; align-items:center; gap:4px; margin-top:2px; }
+  .cost-val { font-size:10px; letter-spacing:0.06em; color:var(--gold); }
+  .card-chaos { font-size:9px; letter-spacing:0.05em; color:rgba(232,228,208,0.35); }
+
+  .detail-panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .detail-top { display:flex; gap:16px; padding:16px; align-items:flex-start; }
+  .mini-preview { width:160px; flex-shrink:0; border-radius:6px; overflow:hidden; position:relative; aspect-ratio:16/9; background:#0a0b10; border:1px solid rgba(200,168,75,0.25); }
+  .mini-preview-inner { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse at 50% 50%, #141820 0%, #0a0b10 100%); }
+  .preview-label { position:absolute; top:5px; left:6px; font-size:8px; letter-spacing:0.1em; color:rgba(200,168,75,0.5); }
+  .detail-info { flex:1; min-width:0; }
+  .detail-name { font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; letter-spacing:0.1em; color:var(--gold); text-transform:uppercase; line-height:1; margin-bottom:6px; }
+  .detail-desc { font-size:11px; letter-spacing:0.05em; color:rgba(232,228,208,0.65); line-height:1.8; margin-bottom:10px; }
+  .detail-meta { display:flex; gap:10px; flex-wrap:wrap; }
+  .meta-pill { background:var(--gold-faint); border:1px solid var(--gold-dim); border-radius:4px; padding:3px 9px; font-size:9px; letter-spacing:0.08em; color:var(--gold); }
+  .detail-bottom { border-top:1px solid var(--border); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .how-to { font-size:10px; letter-spacing:0.06em; color:rgba(232,228,208,0.35); line-height:1.7; }
+  .how-to span { color:rgba(200,168,75,0.7); }
+  .redeem-btn { background:var(--gold-faint); border:1px solid var(--gold-dim); border-radius:6px; padding:8px 18px; font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700; letter-spacing:0.1em; color:var(--gold); cursor:pointer; transition:all 0.2s; text-transform:uppercase; white-space:nowrap; flex-shrink:0; }
+  .redeem-btn:hover { background:rgba(200,168,75,0.2); border-color:var(--gold); }
+  .placeholder-msg { text-align:center; padding:24px 16px; font-size:11px; letter-spacing:0.08em; color:rgba(232,228,208,0.25); line-height:1.8; }
+
+  @keyframes prev-flip { 0%,100%{transform:rotate(0deg);}20%,80%{transform:rotate(180deg);} }
+  @keyframes prev-quake { 0%,100%{transform:translate(0,0);}20%{transform:translate(-4px,3px) rotate(-2deg);}40%{transform:translate(5px,-3px) rotate(2deg);}60%{transform:translate(-4px,4px) rotate(-1deg);}80%{transform:translate(4px,-2px) rotate(1.5deg);} }
+  @keyframes prev-spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+  @keyframes prev-bounce { 0%,100%{transform:translateY(0);}25%{transform:translateY(-14px) translateX(8px);}50%{transform:translateY(-6px) translateX(16px);}75%{transform:translateY(-18px) translateX(6px);} }
+  @keyframes prev-tiny { 0%,100%{transform:scale(0.38);}50%{transform:scale(0.42);} }
+  @keyframes prev-grow { 0%,100%{transform:scale(1);}40%,60%{transform:scale(1.7);} }
+  @keyframes prev-drunk { 0%{transform:rotate(0deg) translateX(0);}25%{transform:rotate(-14deg) translateX(-6px);}50%{transform:rotate(12deg) translateX(5px);}75%{transform:rotate(-10deg) translateX(-4px);}100%{transform:rotate(0deg) translateX(0);} }
+  @keyframes prev-mirror { 0%,45%,100%{transform:scaleX(1);}50%,95%{transform:scaleX(-1);} }
+  @keyframes prev-glitch { 0%,100%{transform:translate(0,0);filter:hue-rotate(0deg) saturate(1);}15%{transform:translate(-3px,0);filter:hue-rotate(90deg) saturate(3);}30%{transform:translate(3px,1px);filter:hue-rotate(200deg) saturate(3);}45%{transform:translate(-2px,-2px);filter:hue-rotate(320deg) saturate(4);}60%{transform:translate(3px,0);filter:hue-rotate(140deg) saturate(2);}80%{transform:translate(-3px,2px);filter:hue-rotate(270deg) saturate(3);} }
+  .anim-flip{animation:prev-flip 3s ease-in-out infinite;}
+  .anim-quake{animation:prev-quake 0.3s linear infinite;}
+  .anim-spin{animation:prev-spin 1.5s linear infinite;}
+  .anim-bounce{animation:prev-bounce 2s ease-in-out infinite;}
+  .anim-tiny{animation:prev-tiny 1.2s ease-in-out infinite;}
+  .anim-grow{animation:prev-grow 2.5s ease-in-out infinite;}
+  .anim-drunk{animation:prev-drunk 1.2s ease-in-out infinite;}
+  .anim-mirror{animation:prev-mirror 2s step-end infinite;}
+  .anim-glitch{animation:prev-glitch 0.15s linear infinite;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <rect x="7" y="17" width="22" height="15" rx="4" fill="#c8a84b" opacity="0.9"/>
+    <rect x="10" y="20" width="16" height="10" rx="3" fill="#0d0e14"/>
+    <path d="M11 17V13C11 6 25 6 25 13V17" stroke="#c8a84b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+    <circle cx="18" cy="25" r="2.5" fill="#c8a84b"/>
+    <rect x="16.8" y="25" width="2.4" height="4" rx="1.2" fill="#c8a84b"/>
+  </svg>
+  <div class="header-text">
+    <div class="title">LocketCM · Viewer Rewards</div>
+    <div class="subtitle">// Spend your keys — make chaos happen on stream</div>
+  </div>
+</div>
+
+<div class="divider-line"></div>
+
+<div class="intro">
+  You earn <span>keys</span> just by watching the stream. The longer you watch, the more you stack.
+  Spend them on rewards below to mess with the live cam. Click any card to preview it before you commit.
+</div>
+
+<div class="effects-grid" id="cardsGrid"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="placeholder-msg">Click any reward above to preview it and see what it does.</div>
+</div>
+
+<script>
+const EFFECTS = [
+  { name:'Flip',   anim:'flip',   cost:500, chaos:2, dur:5,  icon:'↕', desc:"Turns my cam completely upside down. Everything flips vertically. Lasts a few seconds — feels like forever." },
+  { name:'Quake',  anim:'quake',  cost:300, chaos:2, dur:5,  icon:'〜', desc:"Full earthquake mode. The cam shakes violently. Perfect for when I die in a bad spot." },
+  { name:'Spin',   anim:'spin',   cost:400, chaos:2, dur:5,  icon:'↻', desc:"Sends the cam into a continuous 360 spin. I cannot stop it. Auto-resets after the timer." },
+  { name:'Bounce', anim:'bounce', cost:600, chaos:3, dur:8,  icon:'◇', desc:"The cam breaks free and bounces around the entire screen like a DVD logo. Full chaos mode." },
+  { name:'Tiny',   anim:'tiny',   cost:250, chaos:1, dur:5,  icon:'↙', desc:"Shrinks the cam to almost nothing. Good luck finding me. I'll be the tiny speck in the corner." },
+  { name:'Grow',   anim:'grow',   cost:700, chaos:3, dur:5,  icon:'↗', desc:"Expands the cam until it takes over the screen. Your face is now the stream. Enjoy." },
+  { name:'Drunk',  anim:'drunk',  cost:350, chaos:1, dur:5,  icon:'~', desc:"The cam staggers and sways like it had one too many energy drinks. Wobbles on a loop." },
+  { name:'Mirror', anim:'mirror', cost:200, chaos:1, dur:5,  icon:'↔', desc:"Flips the cam horizontally. Everything is backwards. Text becomes unreadable. Cheap but effective." },
+  { name:'Glitch', anim:'glitch', cost:450, chaos:2, dur:5,  icon:'!', desc:"Full RGB breakdown. Colors go haywire, cam shifts and stutters. Looks like a corrupted signal." },
+];
+
+const CHAOS = {1:'Mild',2:'Spicy',3:'Full chaos'};
+let sel = null;
+
+function lockSVG(cls) {
+  return `<svg class="${cls}" width="48" height="48" viewBox="0 0 72 72" fill="none">
+    <rect x="16" y="34" width="40" height="30" rx="7" fill="#c8a84b" opacity="0.85"/>
+    <rect x="21" y="39" width="30" height="21" rx="5" fill="#0d0e14"/>
+    <path d="M21 34V27Q21 13 36 13Q51 13 51 27V34" stroke="#c8a84b" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85"/>
+    <circle cx="36" cy="50" r="4" fill="#c8a84b" opacity="0.9"/>
+    <rect x="34" y="50" width="4" height="6" rx="2" fill="#c8a84b" opacity="0.9"/>
+  </svg>`;
+}
+
+function renderCards() {
+  const g = document.getElementById('cardsGrid');
+  g.innerHTML = '';
+  EFFECTS.forEach((ef,i) => {
+    const c = document.createElement('div');
+    c.className = 'effect-card'+(i===sel?' selected':'');
+    c.onclick = () => selectEffect(i);
+    c.innerHTML = `<div class="card-icon">${ef.icon}</div><div class="card-name">${ef.name}</div><div class="card-cost"><span class="cost-val">${ef.cost.toLocaleString()} keys</span></div><div class="card-chaos">${CHAOS[ef.chaos]||''}</div>`;
+    g.appendChild(c);
+  });
+}
+
+function selectEffect(i) {
+  sel = i; const ef = EFFECTS[i]; renderCards();
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="detail-top">
+      <div class="mini-preview"><div class="mini-preview-inner">${lockSVG('anim-'+ef.anim)}</div><div class="preview-label">live preview</div></div>
+      <div class="detail-info">
+        <div class="detail-name">${ef.icon} ${ef.name}</div>
+        <div class="detail-desc">${ef.desc}</div>
+        <div class="detail-meta">
+          <div class="meta-pill">${ef.cost.toLocaleString()} keys</div>
+          <div class="meta-pill">${CHAOS[ef.chaos]}</div>
+          <div class="meta-pill">${ef.dur}s duration</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-bottom">
+      <div class="how-to">Redeem via <span>Channel Points</span> while live.<br>Effect triggers on stream instantly.</div>
+      <button class="redeem-btn" onclick="window.open('https://www.twitch.tv/locketcm/channel-points','_blank')">Redeem on Twitch · ${ef.cost.toLocaleString()} keys</button>
+    </div>`;
+}
+
+renderCards();
+</script>
+</body>
+</html>
