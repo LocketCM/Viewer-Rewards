@@ -161,7 +161,7 @@ function selectEffect(i) {
 }
 
 function handleRedeem(name) {
-  navigator.clipboard.writeText(name).then(() => {
+  navigator.clipboard.writeText('!' + name).then(() => {
     const btn = document.querySelector(".redeem-btn");
     const orig = btn.textContent;
     btn.textContent = "Copied! Heading back...";
